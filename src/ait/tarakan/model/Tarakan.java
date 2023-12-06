@@ -1,29 +1,27 @@
 package ait.tarakan.model;
+
 import java.util.Random;
 
-
 // Класс Tarakan, представляющий поток таракана
+
 class Tarakan extends Thread {
-    private final int tarakanNumber; // Номер таракана
+    final int tarakanNumber; // Номер таракана
     private final int distance; // Дистанция (количество итераций), которую таракан должен преодолеть
-    public static volatile int winner = -1; // Переменная для отслеживания победителя
+    static volatile int winner = -1; // Переменная для отслеживания победителя
     private static Object lock = new Object(); // Объект блокировки для синхронизации
 
-    // Конструктор класса Tarakan
-    Tarakan(int tarakanNumber, int distance) {
+    Tarakan(int tarakanNumber, int distance) { // Конструктор класса Tarakan
         this.tarakanNumber = tarakanNumber;
         this.distance = distance;
     }
 
     @Override
-    public void run() {
+    public void run() { // Переопределенный метод run() для выполнения потока таракана
         Random random = new Random();
         int currentPosition = 0; // Текущая позиция таракана на дистанции
 
-        // Цикл итераций таракана
-        while (currentPosition < distance && winner == -1) {
+        while (currentPosition < distance) { // Цикл для итераций таракана
             System.out.println("Таракан #" + tarakanNumber + " на позиции " + currentPosition);
-
             currentPosition++; // Увеличение позиции
 
             try {
@@ -33,16 +31,13 @@ class Tarakan extends Thread {
                 e.printStackTrace();
             }
 
-            // Если таракан завершил все итерации и победитель еще не объявлен
-            if (currentPosition == distance && winner == -1) {
-                synchronized (lock) { // Используем синхронизацию для обеспечения атомарности операции
-                    if (winner == -1) {
+            if (currentPosition == distance) { // Проверка, завершил ли таракан гонку
+                synchronized (lock) { // Используем синхронизацию для безопасности операции
+                    if (winner == -1) { // Если победитель еще не объявлен
                         winner = tarakanNumber; // Устанавливаем номер таракана как победителя
-                        System.out.println("Поздравляем таракана #" + winner + " (победитель)");
                     }
                 }
             }
         }
     }
 }
-
